@@ -29,5 +29,17 @@ postRouter.get("/:postId", async (req, res, next) => {
     next(error);
   }
 });
+postRouter.put("/:postId", async (req, res, next) => {
+  try {
+    const posts = await PostSchema.findByIdAndUpdate(
+      req.params.postId,
+      req.body,
+      { new: true }
+    );
+    res.status(200).send(posts);
+  } catch (error) {
+    next(error);
+  }
+});
 
 export default postRouter;
