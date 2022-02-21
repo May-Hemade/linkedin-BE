@@ -10,8 +10,10 @@ import {
 } from "./errorHandlers.js"
 import mongoose from "mongoose"
 import experienceRouter from "./services/experiences/index.js"
+import { join } from "path"
 
 const server = express()
+const publicFolderPath = join(process.cwd(), "./public")
 
 const port = process.env.PORT || 3001
 const whiteListedOrigins = [process.env.FE_DEV_URL, process.env.FE_PROD_URL]
@@ -31,7 +33,7 @@ server.use(
       },
     })
   )
-  
+  server.use(express.static(publicFolderPath))
 
   server.use(express.json())
   server.use("/profile",experienceRouter)
