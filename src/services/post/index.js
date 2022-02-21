@@ -1,6 +1,7 @@
 import express from "express";
 import createHttpError from "http-errors";
 import PostSchema from "./schema.js";
+import multer from "multer";
 
 const postRouter = express.Router();
 
@@ -30,18 +31,6 @@ postRouter.get("/:postId", async (req, res, next) => {
     next(error);
   }
 });
-postRouter.put("/:postId", async (req, res, next) => {
-  try {
-    const postsUpdated = await PostSchema.findByIdAndUpdate(
-      req.params.postId,
-      req.body,
-      { new: true }
-    );
-    res.status(200).send(postsUpdated);
-  } catch (error) {
-    next(error);
-  }
-});
 postRouter.delete("/:postId", async (req, res, next) => {
   try {
     const postDeleted = await PostSchema.findByIdAndDelete(req.params.postId);
@@ -51,19 +40,31 @@ postRouter.delete("/:postId", async (req, res, next) => {
   }
 });
 
-// postRouter.put("/:postId", async (req, res, next) => {
-//   try {
-//     const getPost = await PostSchema.findById(req.params.postId);
-//     const postsUpdated = await PostSchema.findByIdAndUpdate(
-//       req.params.postId,
-//       {},
+postRouter.put("/:postId", async (req, res, next) => {
+  try {
+    const postsUpdated = await PostSchema.findOneAndUpdate(
+      req.params.postId,
+      req.body,
+      { new: true }
+    );
+    res.status(200).send(postsUpdated);
+  } catch (error) {
+    next(error);
+  }
+});
 
-//       { new: true }
-//     );
-//     res.status(200).send(postsUpdated);
-//   } catch (error) {
-//     next(error);
-//   }
-// });
+// upload image
+const upload = multer({ dest: "./media" });
+postRouter.post(
+  "/:postId",
+  upload.single("postImage"),
+  async (req, res, next) => {
+    console.log(req.file);
+    try {
+    } catch (error) {
+      next(error);
+    }
+  }
+);
 
 export default postRouter;
