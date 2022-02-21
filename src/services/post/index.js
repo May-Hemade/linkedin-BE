@@ -23,23 +23,47 @@ postRouter.get("/", async (req, res, next) => {
 });
 postRouter.get("/:postId", async (req, res, next) => {
   try {
-    const posts = await PostSchema.findById(req.params.postId);
-    res.status(200).send(posts);
+    const post = await PostSchema.findById(req.params.postId);
+    console.log(post);
+    res.status(200).send(post);
   } catch (error) {
     next(error);
   }
 });
 postRouter.put("/:postId", async (req, res, next) => {
   try {
-    const posts = await PostSchema.findByIdAndUpdate(
+    const postsUpdated = await PostSchema.findByIdAndUpdate(
       req.params.postId,
       req.body,
       { new: true }
     );
-    res.status(200).send(posts);
+    res.status(200).send(postsUpdated);
   } catch (error) {
     next(error);
   }
 });
+postRouter.delete("/:postId", async (req, res, next) => {
+  try {
+    const postDeleted = await PostSchema.findByIdAndDelete(req.params.postId);
+    res.status(200).send(postDeleted);
+  } catch (error) {
+    next(error);
+  }
+});
+
+// postRouter.put("/:postId", async (req, res, next) => {
+//   try {
+//     const getPost = await PostSchema.findById(req.params.postId);
+//     const postsUpdated = await PostSchema.findByIdAndUpdate(
+//       req.params.postId,
+//       {},
+
+//       { new: true }
+//     );
+//     res.status(200).send(postsUpdated);
+//   } catch (error) {
+//     next(error);
+//   }
+// });
 
 export default postRouter;
