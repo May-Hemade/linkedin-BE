@@ -1,11 +1,13 @@
 import express from "express";
 import createHttpError from "http-errors";
 import profilesModel from "./schema.js";
-import BlogpostsModel from "../blogposts/schema.js";
+/* import postsModel from "../posts/schema.js"; */
 import multer from "multer";
 import { v2 as cloudinary } from "cloudinary";
 import { CloudinaryStorage } from "multer-storage-cloudinary";
 import q2m from "query-to-mongo";
+import { getPDFReadableStream } from "../../lib/pdf-tools.js";
+import { pipeline } from "stream";
 
 const cloudinaryStorage = new CloudinaryStorage({
   cloudinary,
@@ -82,7 +84,7 @@ profilesRouter.delete("/:ProfileId", async (req, res, next) => {
   }
 });
 
-proflesRouter.post(
+profilesRouter.post(
   "/:profileId/image",
   multer({ storage: cloudinaryStorage }).single("image"),
   async (req, res, next) => {
@@ -107,4 +109,25 @@ proflesRouter.post(
   }
 );
 
+profilesRouter.get("/:profileId/CV", async (req, res, next) => {
+  try {
+    const profileId = req.params.profileId;
+    const foundProfile = await profilesModel.findByIdAndUpdate(profileId);
+    
+    console.log(foundProfile);
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename=${foundProfile.name}.pdf`
+    );
+
+    const source = await getPDFReadableStream(foundProfile);
+    const destination = res;
+    pipeline(source, destination, (err) => {
+      if (err) next(err);
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+//CV NOT WORKING 
 export default profilesRouter;

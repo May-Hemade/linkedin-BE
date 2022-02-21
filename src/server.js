@@ -1,7 +1,7 @@
 import express from "express"
 import listEndpoints from "express-list-endpoints"
 import cors from "cors"
-import profilesRouter from "./services/products/index.js"
+import profilesRouter from "./services/profiles/index.js"
 
 import {
   badRequestHandler,
