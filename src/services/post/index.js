@@ -21,5 +21,13 @@ postRouter.get("/", async (req, res, next) => {
     next(error);
   }
 });
+postRouter.get("/:postId", async (req, res, next) => {
+  try {
+    const posts = await PostSchema.findById(req.params.postId);
+    res.status(200).send(posts);
+  } catch (error) {
+    next(error);
+  }
+});
 
 export default postRouter;
