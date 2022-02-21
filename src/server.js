@@ -1,8 +1,7 @@
 import express from "express"
 import listEndpoints from "express-list-endpoints"
 import cors from "cors"
-import productRouter from "./services/products/index.js"
-import reviewRouter from "./services/reviews/index.js"
+
 import {
   badRequestHandler,
   unauthorizedHandler,
@@ -10,6 +9,7 @@ import {
   genericErrorHandler,
 } from "./errorHandlers.js"
 import mongoose from "mongoose"
+import experienceRouter from "./services/experiences/index.js"
 
 const server = express()
 
@@ -34,6 +34,7 @@ server.use(
   
 
   server.use(express.json())
+  server.use("/profile",experienceRouter)
 
 
 
