@@ -2,6 +2,9 @@ import express from "express";
 import createHttpError from "http-errors";
 import PostSchema from "./schema.js";
 import multer from "multer";
+import { CloudinaryStorage } from "multer-storage-cloudinary";
+import multer from "multer";
+import fs from "fs";
 
 const postRouter = express.Router();
 
@@ -54,17 +57,30 @@ postRouter.put("/:postId", async (req, res, next) => {
 });
 
 // upload image
-const upload = multer({ dest: "./media" });
-postRouter.post(
-  "/:postId",
-  upload.single("postImage"),
-  async (req, res, next) => {
-    console.log(req.file);
-    try {
-    } catch (error) {
-      next(error);
-    }
+const cloudinaryUploader = multer({
+  storage: new CloudinaryStorage({
+    cloudinary,
+    params: {
+      folder: "media",
+    },
+  }),
+}).single("image");
+
+postRouter.post("/:postId", cloudinaryUploader, async (req, res, next) => {
+  try {
+    const postId = req.params.postId;
+    const updatedPost = await PostSchema.findByIdAndUpdate(
+      postId,
+      { image: req.file.path },
+      {
+        new: true,
+      }
+    );
+
+    res.send(updatedPost);
+  } catch (error) {
+    next(error);
   }
-);
+});
 
 export default postRouter;
