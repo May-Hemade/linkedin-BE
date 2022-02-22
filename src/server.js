@@ -1,7 +1,6 @@
 import express from "express"
 import listEndpoints from "express-list-endpoints"
 import cors from "cors"
-import profilesRouter from "./services/profiles/index.js"
 
 import {
   badRequestHandler,
@@ -10,8 +9,11 @@ import {
   genericErrorHandler,
 } from "./errorHandlers.js"
 import mongoose from "mongoose"
+import experienceRouter from "./services/experiences/index.js"
+import { join } from "path"
 
 const server = express()
+const publicFolderPath = join(process.cwd(), "./public")
 
 const port = process.env.PORT || 3001
 server.use(cors());
@@ -33,8 +35,10 @@ server.use(
       },
     })
   )
-  
+  server.use(express.static(publicFolderPath))
 
+  server.use(express.json())
+  server.use("/profile",experienceRouter)
 
 server.use("/profiles", profilesRouter);
 
