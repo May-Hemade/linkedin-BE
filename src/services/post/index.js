@@ -4,7 +4,7 @@ import PostSchema from "./schema.js";
 import multer from "multer";
 import { v2 as cloudinary } from "cloudinary";
 import { CloudinaryStorage } from "multer-storage-cloudinary";
-import fs from "fs";
+import q2m from "query-to-mongo";
 
 const postRouter = express.Router();
 const cloudinaryUploader = multer({
@@ -18,7 +18,7 @@ const cloudinaryUploader = multer({
 
 postRouter.post("/", async (req, res, next) => {
   try {
-    const newPost = new PostSchema(req.body);
+    const newPost = new PostSchema(req.body, user);
     const { _id } = await newPost.save();
     res.status(201).send({ _id });
   } catch (error) {
@@ -27,7 +27,11 @@ postRouter.post("/", async (req, res, next) => {
 });
 postRouter.get("/", async (req, res, next) => {
   try {
-    const posts = await PostSchema.find();
+    const mongoQuery = q2m(req.query);
+
+    const posts = await PostSchema.find().populate({
+      path: "user",
+    });
     res.status(200).send(posts);
   } catch (error) {
     next(error);
@@ -35,8 +39,10 @@ postRouter.get("/", async (req, res, next) => {
 });
 postRouter.get("/:postId", async (req, res, next) => {
   try {
-    const post = await PostSchema.findById(req.params.postId);
-    console.log(post);
+    const post = await PostSchema.findById(req.params.postId).populate({
+      path: "user",
+    });
+
     res.status(200).send(post);
   } catch (error) {
     next(error);
