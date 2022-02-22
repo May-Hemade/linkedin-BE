@@ -112,16 +112,21 @@ profilesRouter.post(
 profilesRouter.get("/:profileId/CV", async (req, res, next) => {
   try {
     const profileId = req.params.profileId;
-    const foundProfile = await profilesModel.findByIdAndUpdate(profileId);
-    
-    console.log(foundProfile);
-    res.setHeader(
-      "Content-Disposition",
-      `attachment; filename=${foundProfile.name}.pdf`
-    );
-
+    const foundProfile = await profilesModel.findById(profileId);
+    if (!foundProfile){
+      res.sendStatus(404).send({message:`profile with ${profileId} id is not found`})
+    } else {
     const source = await getPDFReadableStream(foundProfile);
-    const destination = res;
+    res.setHeader("Content-Type", "application/pdf");
+    pdfStream.pipe(res)
+    pdfStream.end()
+  }
+  res.setHeader(
+    "Content-Disposition",
+    `attachment; filename=${foundProfile.name}.pdf`
+  );
+  const source =  getPDFReadableStream(foundProfile)
+  const destination = res
     pipeline(source, destination, (err) => {
       if (err) next(err);
     });
