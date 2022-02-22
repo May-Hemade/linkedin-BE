@@ -1,8 +1,8 @@
 import PdfPrinter from "pdfmake";
-
+import striptags from "striptags";
 import axios from "axios";
 import getStream from "get-stream";
-export const getPDFReadableStream = async (foundProfile, asBuffer = false) => {
+export const getPDFReadableStream = async (foundProfile) => {
   const fonts = {
     Helvetica: {
       normal: "Helvetica",
@@ -12,6 +12,7 @@ export const getPDFReadableStream = async (foundProfile, asBuffer = false) => {
   };
 
   const printer = new PdfPrinter(fonts);
+  
   let imagePart = {};
   if (foundProfile.image) {
     const response = await axios.get(foundProfile.image, {
@@ -33,20 +34,25 @@ export const getPDFReadableStream = async (foundProfile, asBuffer = false) => {
     content: [
       imagePart,
       {
-        text: foundProfile.name + ' ' + foundProfile.surname, 
+        text: `${foundProfile.name} ${foundProfile.surname}`,
         style: "header",
       },
       "\n",
-      foundProfile.username,
+      { text: striptags(foundProfile.username) },
       "\n",
-      foundProfile.email,
-      "\n",
-      foundProfile.bio,
-      "\n",
-      foundProfile.title,
-      "\n",
-      foundProfile.area,
+      { text: striptags(foundProfile.email) },
 
+      "\n",
+      { text: striptags(foundProfile.bio) },
+
+      "\n",
+      { text: striptags(foundProfile.title) },
+
+      "\n",
+      { text: striptags(foundProfile.area) },
+      {
+        //...experiences
+      }
     ],
     styles: {
       header: {
@@ -59,8 +65,9 @@ export const getPDFReadableStream = async (foundProfile, asBuffer = false) => {
     },
   };
 
-  const pdfReadableStream = printer.createPdfKitDocument(docDefinition, {});
-  pdfReadableStream.end();
+  const pdfReadableStream = printer.createPdfKitDocument(docDefinition);
+  return pdfReadableStream
+  /* pdfReadableStream.end();
   const buffer = await getStream.buffer(pdfReadableStream);
-  return asBuffer ? buffer : pdfReadableStream;
+  return asBuffer ? buffer : pdfReadableStream; */
 };
