@@ -32,7 +32,25 @@ profilesRouter.post("/", async (req, res, next) => {
 
 profilesRouter.get("/", async (req, res, next) => {
   try {
-    const profiles = await profilesModel.find();
+    const defaultQuery = {
+      sort: "=createdAt",
+      skip: 0,
+      limit: 20,
+    };
+    const query = { ...defaultQuery, ...req.query };
+    const mongoQuery = q2m(query);
+    const total = await profilesModel.countDocuments(mongoQuery.criteria);
+    const profiles = await profilesModel
+    .find(mongoQuery.criteria)
+    .sort(mongoQuery.options.sort)
+    .skip(mongoQuery.options.skip)
+    .limit(mongoQuery.options.limit)
+    res.status(201).send({
+      links: mongoQuery.links("/profile", total),
+      total,
+      totalPages: Math.ceil(total / mongoQuery.options.limit),
+      profiles,
+    });
     res.send(profiles);
   } catch (error) {
     next(error);
@@ -116,7 +134,7 @@ profilesRouter.get("/:profileId/CV", async (req, res, next) => {
     if (!foundProfile){
       res.sendStatus(404).send({message:`profile with ${profileId} id is not found`})
     } else {
-    const source = await getPDFReadableStream(foundProfile);
+    const pdfStream = await getPDFReadableStream(foundProfile);
     res.setHeader("Content-Type", "application/pdf");
     pdfStream.pipe(res)
     pdfStream.end()
@@ -125,7 +143,7 @@ profilesRouter.get("/:profileId/CV", async (req, res, next) => {
     "Content-Disposition",
     `attachment; filename=${foundProfile.name}.pdf`
   );
-  const source =  getPDFReadableStream(foundProfile)
+  const source = getPDFReadableStream(foundProfile)
   const destination = res
     pipeline(source, destination, (err) => {
       if (err) next(err);
