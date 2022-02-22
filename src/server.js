@@ -16,6 +16,8 @@ const server = express()
 const publicFolderPath = join(process.cwd(), "./public")
 
 const port = process.env.PORT || 3001
+server.use(cors());
+server.use(express.json());
 const whiteListedOrigins = [process.env.FE_DEV_URL, process.env.FE_PROD_URL]
 
 
@@ -38,9 +40,15 @@ server.use(
   server.use(express.json())
   server.use("/profile",experienceRouter)
 
+server.use("/profiles", profilesRouter);
+
+server.use(badRequestHandler);
+server.use(unauthorizedHandler);
+server.use(notFoundHandler);
+server.use(genericErrorHandler);
 
 
-  mongoose.connect(process.env.MONGO_CONNECTION)
+mongoose.connect(process.env.MONGO_CONNECTION)
 
 mongoose.connection.on("connected", () => {
   console.log("Successfully connected to Mongo!")
@@ -49,3 +57,8 @@ mongoose.connection.on("connected", () => {
     console.log("Server runnning on port: ", port)
   })
 })
+
+
+server.on("error", (error) => {
+  console.log(`Server is stopped : ${error}`);
+});
