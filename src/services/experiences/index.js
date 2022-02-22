@@ -1,27 +1,20 @@
 import express from "express"
 import createHttpError from "http-errors"
 import ExperienceModel from "./schema.js"
-
 import { v2 as cloudinary } from "cloudinary"
 import { CloudinaryStorage } from "multer-storage-cloudinary"
 import multer from "multer"
-
-import json2csv from "json2csv"
-
-
+import { Transform } from "json2csv"
+import { pipeline } from "stream"
 
 const experienceRouter = express.Router()
 
-
-const Json2csvParser = json2csv.Parser;
-experienceRouter.get("/:username/experiences/csv", async (req, res) => {
+experienceRouter.get("/:username/experiences/csv", (req, res) => {
   try {
-    const data = await ExperienceModel.find({
+    const readablestream = ExperienceModel.find({
         username: req.params.username,
-      })
+      }).cursor({transform: JSON.stringify})
 
-    const jsonData = JSON.parse(JSON.stringify(data));
-    console.log(jsonData);
     const csvFields = [
       "_id",
       "role",
@@ -34,14 +27,18 @@ experienceRouter.get("/:username/experiences/csv", async (req, res) => {
       "createdAt",
       "updatedAt",
     ];
-    const json2csvParser = new Json2csvParser({ csvFields });
-    const csvData = json2csvParser.parse(jsonData);
+   
     res.setHeader(
       "Content-disposition",
       "attachment; filename=experiences.csv"
     );
     res.set("Content-Type", "text/csv");
-    res.status(200).end(csvData);
+    
+    const csv = new Transform({fields: csvFields})
+
+    pipeline(readablestream, csv, res, err => {
+      if (err) next(err)
+    }) 
   } catch (e) {
     console.log(e);
   }
