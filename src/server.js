@@ -11,6 +11,7 @@ import {
 import mongoose from "mongoose"
 import experienceRouter from "./services/experiences/index.js"
 import { join } from "path"
+import profilesRouter from "./services/profiles/index.js"
 
 const server = express()
 const publicFolderPath = join(process.cwd(), "./public")
