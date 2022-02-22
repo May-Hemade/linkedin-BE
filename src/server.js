@@ -10,6 +10,7 @@ import {
 } from "./errorHandlers.js";
 import mongoose from "mongoose";
 import experienceRouter from "./services/experiences/index.js";
+import postRouter from "./services/post/index.js";
 import { join } from "path";
 import profilesRouter from "./services/profiles/index.js";
 
@@ -38,6 +39,7 @@ server.use(
 server.use(express.static(publicFolderPath));
 
 server.use(express.json());
+server.use("/posts", postRouter);
 server.use("/profile", experienceRouter);
 
 server.use("/profile", profilesRouter);
