@@ -10,8 +10,21 @@ const postSchema = new Schema(
       type: String,
       default: "https://picsum.photos/200/300",
     },
-    // user: [{type: Schema.TypesObjectId, required:true, ref: "Profile"}]
+    user: { type: Schema.Types.ObjectId, ref: "Profile" },
   },
   { timestamps: true }
 );
+
+postSchema.static("findPostsWithUsers", async function (mongoQuery) {
+  const total = await this.countDocuments(mongoQuery.criteria);
+  const users = await this.find(mongoQuery.criteria)
+    .limit(mongoQuery.options.limit)
+    .skip(mongoQuery.options.skip)
+    .sort(mongoQuery.options.sort)
+    .populate({
+      path: "profiles",
+    });
+  return { total, users };
+});
+
 export default model("Post", postSchema);
