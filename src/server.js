@@ -41,7 +41,7 @@ server.use(
   server.use(express.json())
   server.use("/profile",experienceRouter)
 
-server.use("/profiles", profilesRouter);
+server.use("/profile", profilesRouter);
 
 server.use(badRequestHandler);
 server.use(unauthorizedHandler);
