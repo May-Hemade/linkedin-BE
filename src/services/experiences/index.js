@@ -1,80 +1,49 @@
-import express from "express";
-import createHttpError from "http-errors";
-import ExperienceModel from "./schema.js";
-import q2m from "query-to-mongo";
-import { v2 as cloudinary } from "cloudinary";
-import { CloudinaryStorage } from "multer-storage-cloudinary";
-import multer from "multer";
-import fs from "fs";
-import json2csv from "json2csv";
-import path from "path";
+import express from "express"
+import createHttpError from "http-errors"
+import ExperienceModel from "./schema.js"
 
-import { join, dirname } from "path";
+import { v2 as cloudinary } from "cloudinary"
+import { CloudinaryStorage } from "multer-storage-cloudinary"
+import multer from "multer"
 
-const experienceRouter = express.Router();
-const publicFolderPath = join(process.cwd(), "./public/expriences");
-experienceRouter.get("/:username/experiences/CSV", async (req, res, next) => {
+import json2csv from "json2csv"
+
+
+
+const experienceRouter = express.Router()
+
+
+const Json2csvParser = json2csv.Parser;
+experienceRouter.get("/:username/experiences/csv", async (req, res) => {
   try {
-    const dateTime = new Date()
-      .toISOString()
-      .slice(-24)
-      .replace(/\D/g, "")
-      .slice(0, 14);
+    const data = await ExperienceModel.find({
+        username: req.params.username,
+      })
 
-    const filePath = path.join(
-      publicFolderPath,
-
-      "csv-" + dateTime + ".csv"
-    );
-
-    let csv;
-
-    const experience = await ExperienceModel.find({
-      username: req.params.username,
-    });
-
-    const fields = [
+    const jsonData = JSON.parse(JSON.stringify(data));
+    console.log(jsonData);
+    const csvFields = [
+      "_id",
       "role",
       "company",
       "startDate",
       "endDate",
       "description",
+      "area",
       "username",
+      "createdAt",
+      "updatedAt",
     ];
-
-    csv = json2csv.parse(experience, { fields });
-
-    fs.writeFile(filePath, csv, function (err) {
-      if (err) {
-        return res.json(err).status(500);
-      } else {
-        setTimeout(function () {
-          fs.unlink(filePath, function (err) {
-            if (err) {
-              console.error(err);
-            }
-            console.log("File has been Deleted");
-          });
-        }, 30000);
-
-        const source = fs.createReadStream(filePath);
-        res.setHeader(
-          "Content-Disposition",
-          "attachment; filename=experiences.csv"
-        );
-
-        const transform = new json2csv.Transform({
-          fields: fields,
-        });
-        const destination = res;
-
-        pipeline(source, transform, destination, (err) => {
-          if (err) next(err);
-        });
-      }
-    });
-  } catch (error) {
-    next(error);
+    const json2csvParser = new Json2csvParser({ csvFields });
+    const csvData = json2csvParser.parse(jsonData);
+    res.setHeader(
+      "Content-disposition",
+      "attachment; filename=experiences.csv"
+    );
+    res.set("Content-Type", "text/csv");
+    res.status(200).end(csvData);
+  } catch (e) {
+    console.log(e);
   }
 });
 
