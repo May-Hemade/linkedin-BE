@@ -36,13 +36,16 @@ commentRouter.get("/:postId/comments", async (req, res, next) => {
 //   }
 commentRouter.post("/:postId/comments", async (req, res, next) => {
   try {
-    const commentToInsert = { ...req.body };
+    const commentToPost = new CommentModel(req.body);
+    const { _id } = await commentToPost.save();
+    // console.log(commentToPost._id);
     const postsUpdated = await PostModel.findOneAndUpdate(
       { _id: req.params.postId },
-      { $push: { comments: commentToInsert } },
+      { $push: { comments: _id } },
       { new: true }
     );
-    res.status(200).send(postsUpdated);
+
+    res.status(201).send(postsUpdated);
   } catch (error) {
     next(error);
   }
@@ -53,9 +56,9 @@ commentRouter.get("/:postId/comments/:commentId", async (req, res, next) => {
       {
         _id: req.params.postId,
       },
-      "comments"
+      `comments `
     );
-    console.log(comments);
+    console.log(comments[0].comments);
     // const postDeleted = await PostModel.findOneAndDelete({});
     res.status(200).send(comments);
   } catch (error) {
