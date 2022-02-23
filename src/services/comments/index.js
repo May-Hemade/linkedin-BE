@@ -50,14 +50,11 @@ commentRouter.post("/:postId/comments", async (req, res, next) => {
     next(error);
   }
 });
-commentRouter.get("/:postId/comments/:commentId", async (req, res, next) => {
+commentRouter.get("/:postId/comments/", async (req, res, next) => {
   try {
-    const comments = await PostModel.find(
-      {
-        _id: req.params.postId,
-      },
-      `comments `
-    );
+    const comments = await PostModel.find({
+      _id: req.params.postId,
+    });
     console.log(comments[0].comments);
     // const postDeleted = await PostModel.findOneAndDelete({});
     res.status(200).send(comments);
@@ -65,6 +62,23 @@ commentRouter.get("/:postId/comments/:commentId", async (req, res, next) => {
     next(error);
   }
 });
+commentRouter.delete("/:postId/comments/:commentId", async (req, res, next) => {
+  try {
+    const arrayComments = await PostModel.findById(
+      req.params.postId,
+      "comments"
+    );
+    const commentsIds = arrayComments.comments;
+    const comments = await CommentModel.findByIdAndDelete(req.params.commentId);
+    if (comments) {
+      res.status(200).send("Comment has been removed!");
+    } else {
+      res.status(200).send("Comment not found");
+    }
+  } catch (error) {
+    next(error);
+  }
+}); //it removes the comment from the CommentModel but not from the post array
 
 // postRouter.put("/:postId", async (req, res, next) => {
 //   try {
