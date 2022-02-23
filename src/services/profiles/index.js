@@ -18,8 +18,6 @@ const cloudinaryStorage = new CloudinaryStorage({
 
 const profilesRouter = express.Router();
 
-
-
 profilesRouter.post("/", async (req, res, next) => {
   try {
     const newProfile = new profilesModel(req.body); // here happens validation of req.body, if it is not ok Mongoose will throw an error (if it is ok Profile it is not saved in db yet)
@@ -41,17 +39,16 @@ profilesRouter.get("/", async (req, res, next) => {
     const mongoQuery = q2m(query);
     const total = await profilesModel.countDocuments(mongoQuery.criteria);
     const profiles = await profilesModel
-    .find(mongoQuery.criteria)
-    .sort(mongoQuery.options.sort)
-    .skip(mongoQuery.options.skip)
-    .limit(mongoQuery.options.limit)
+      .find(mongoQuery.criteria)
+      .sort(mongoQuery.options.sort)
+      .skip(mongoQuery.options.skip)
+      .limit(mongoQuery.options.limit);
     res.status(201).send({
       links: mongoQuery.links("/profile", total),
       total,
       totalPages: Math.ceil(total / mongoQuery.options.limit),
       profiles,
     });
-    res.send(profiles);
   } catch (error) {
     next(error);
   }
@@ -75,9 +72,13 @@ profilesRouter.get("/:ProfileId", async (req, res, next) => {
 profilesRouter.put("/:ProfileId", async (req, res, next) => {
   try {
     const ProfileId = req.params.ProfileId;
-    const updatedProfile = await profilesModel.findByIdAndUpdate(ProfileId, req.body, {
-      new: true, // by default findByIdAndUpdate returns the record pre-modification, if you want to get back the newly updated record you should use the option new: true
-    });
+    const updatedProfile = await profilesModel.findByIdAndUpdate(
+      ProfileId,
+      req.body,
+      {
+        new: true, // by default findByIdAndUpdate returns the record pre-modification, if you want to get back the newly updated record you should use the option new: true
+      }
+    );
     if (updatedProfile) {
       res.send(updatedProfile);
     } else {
@@ -131,20 +132,22 @@ profilesRouter.get("/:profileId/CV", async (req, res, next) => {
   try {
     const profileId = req.params.profileId;
     const foundProfile = await profilesModel.findById(profileId);
-    if (!foundProfile){
-      res.sendStatus(404).send({message:`profile with ${profileId} id is not found`})
+    if (!foundProfile) {
+      res
+        .sendStatus(404)
+        .send({ message: `profile with ${profileId} id is not found` });
     } else {
-    const pdfStream = await getPDFReadableStream(foundProfile);
-    res.setHeader("Content-Type", "application/pdf");
-    pdfStream.pipe(res)
-    pdfStream.end()
-  }
-  res.setHeader(
-    "Content-Disposition",
-    `attachment; filename=${foundProfile.name}.pdf`
-  );
-  const source = getPDFReadableStream(foundProfile)
-  const destination = res
+      const pdfStream = await getPDFReadableStream(foundProfile);
+      res.setHeader("Content-Type", "application/pdf");
+      pdfStream.pipe(res);
+      pdfStream.end();
+    }
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename=${foundProfile.name}.pdf`
+    );
+    const source = getPDFReadableStream(foundProfile);
+    const destination = res;
     pipeline(source, destination, (err) => {
       if (err) next(err);
     });
@@ -152,5 +155,5 @@ profilesRouter.get("/:profileId/CV", async (req, res, next) => {
     next(error);
   }
 });
-//CV NOT WORKING 
+//CV NOT WORKING
 export default profilesRouter;
