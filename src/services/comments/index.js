@@ -80,6 +80,18 @@ commentRouter.delete("/:postId/comments/:commentId", async (req, res, next) => {
   }
 }); //it removes the comment from the CommentModel but not from the post array
 
+commentRouter.put("/:postId/comments/:commentId", async (req, res, next) => {
+  try {
+    const updatedComment = await CommentModel.findByIdAndUpdate(
+      req.params.commentId,
+      req.body
+    );
+    res.status(200).send(updatedComment);
+  } catch (error) {
+    next(error);
+  }
+});
+
 // postRouter.put("/:postId", async (req, res, next) => {
 //   try {
 //     const postsUpdated = await PostSchema.findOneAndUpdate(
