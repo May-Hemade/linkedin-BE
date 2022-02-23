@@ -11,7 +11,7 @@ const postSchema = new Schema(
       default: "https://picsum.photos/200/300",
     },
     user: { type: Schema.Types.ObjectId, ref: "Profile" },
-    comment: [{ user: String, comments: String, post: String }],
+    comments: [{ user: String, comments: String, post: String }],
   },
   { timestamps: true }
 );
