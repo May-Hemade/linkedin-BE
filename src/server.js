@@ -11,6 +11,7 @@ import {
 import mongoose from "mongoose";
 import experienceRouter from "./services/experiences/index.js";
 import postRouter from "./services/post/index.js";
+import commentRouter from "./services/comments/index.js";
 import { join } from "path";
 import profilesRouter from "./services/profiles/index.js";
 
@@ -41,7 +42,7 @@ server.use(express.static(publicFolderPath));
 server.use(express.json());
 server.use("/posts", postRouter);
 server.use("/profile", experienceRouter);
-
+server.use("/posts", commentRouter);
 server.use("/profile", profilesRouter);
 
 server.use(badRequestHandler);
