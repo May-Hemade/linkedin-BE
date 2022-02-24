@@ -1,6 +1,6 @@
-import mongoose from "mongoose";
+import mongoose from "mongoose"
 
-const { Schema, model } = mongoose;
+const { Schema, model } = mongoose
 
 const profileSchema = new Schema(
   {
@@ -17,15 +17,12 @@ const profileSchema = new Schema(
         "https://simulacionymedicina.es/wp-content/uploads/2015/11/default-avatar-300x300-1.jpg",
     },
     username: { type: String, required: true, unique: true },
-    /* posts: [
-      {
-        postId: [{ type: Schema.Types.ObjectId, ref: "Product" }],
-      }, 
-    ],*/
+    password: { type: String, required: true },
+    token: { type: String },
   },
   {
     timestamps: true,
   }
-);
+)
 
-export default model("Profile", profileSchema);
+export default model("Profile", profileSchema)
