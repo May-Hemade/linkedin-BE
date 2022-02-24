@@ -64,17 +64,19 @@ commentRouter.get("/:postId/comments/", async (req, res, next) => {
 });
 commentRouter.delete("/:postId/comments/:commentId", async (req, res, next) => {
   try {
-    const arrayComments = await PostModel.findById(
-      req.params.postId,
-      "comments"
+    const arrayComments = await PostModel.findOneAndUpdate(
+      { _id: req.params.postId },
+      { $pull: { comments: req.params.commentId } }
     );
-    const commentsIds = arrayComments.comments;
+
+    // const commentsIds = arrayComments.comments;
     const comments = await CommentModel.findByIdAndDelete(req.params.commentId);
     if (comments) {
       res.status(200).send("Comment has been removed!");
     } else {
       res.status(200).send("Comment not found");
     }
+    res.send(arrayComments);
   } catch (error) {
     next(error);
   }
