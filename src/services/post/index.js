@@ -88,7 +88,6 @@ postRouter.post("/:postId", cloudinaryUploader, async (req, res, next) => {
   }
 });
 
-
 postRouter.put("/:postId/like", async (req, res, next) => {
   // try {
   //   const postId = req.params.id
@@ -105,30 +104,40 @@ postRouter.put("/:postId/like", async (req, res, next) => {
   //   res.send(500).send({ message: error.message });
   //}
   try {
-    const postId = req.params.postId
+    const postId = req.params.postId;
     const reqPost = await PostSchema.findById(postId);
+    console.log(req.body);
     if (reqPost) {
-      const isAlreadyLiked = reqPost.likes.find(_id => _id.toString() === req.body.user)
-      if(!isAlreadyLiked){
+      const isAlreadyLiked = reqPost.likes.find(
+        (_id) => _id.toString() === req.body.user
+      );
+      console.log(isAlreadyLiked);
+      if (!isAlreadyLiked) {
         const updatedPost = await PostSchema.findByIdAndUpdate(
           postId,
           { $push: { likes: req.body.user } },
           { new: true }
         );
-      res.status(201).send(updatedPost)
-      } else{
+        console.log(updatedPost);
+        console.log("like");
+
+        res.status(201).send(updatedPost);
+      } else {
         const updatedPost = await PostSchema.findByIdAndUpdate(
           postId,
           { $pull: { likes: req.body.user } },
           { new: true }
         );
-        res.status(201).send(updatedPost)
+        console.log("ünlike");
+        res.status(201).send(updatedPost);
       }
     } else {
-      next(createHttpError(404, `POST  WITH ID:- ${postId} CANNOT UPDATED  !!`))
+      next(
+        createHttpError(404, `POST  WITH ID:- ${postId} CANNOT UPDATED  !!`)
+      );
     }
   } catch (error) {
-    next(error)
+    next(error);
   }
 });
 
