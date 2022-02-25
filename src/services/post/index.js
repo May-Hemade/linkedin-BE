@@ -1,12 +1,12 @@
-import express from "express";
-import createHttpError from "http-errors";
-import PostSchema from "./schema.js";
-import multer from "multer";
-import { v2 as cloudinary } from "cloudinary";
-import { CloudinaryStorage } from "multer-storage-cloudinary";
-import q2m from "query-to-mongo";
+import express from "express"
+import createHttpError from "http-errors"
+import PostSchema from "./schema.js"
+import multer from "multer"
+import { v2 as cloudinary } from "cloudinary"
+import { CloudinaryStorage } from "multer-storage-cloudinary"
+import q2m from "query-to-mongo"
 
-const postRouter = express.Router();
+const postRouter = express.Router()
 const cloudinaryUploader = multer({
   storage: new CloudinaryStorage({
     cloudinary,
@@ -14,46 +14,46 @@ const cloudinaryUploader = multer({
       folder: "posts",
     },
   }),
-}).single("image");
+}).single("image")
 
 postRouter.post("/", async (req, res, next) => {
   try {
-    const newPost = new PostSchema(req.body);
-    const { _id } = await newPost.save();
-    res.status(201).send({ _id });
+    const newPost = new PostSchema(req.body)
+    const { _id } = await newPost.save()
+    res.status(201).send({ _id })
   } catch (error) {
-    next(error);
+    next(error)
   }
-});
+})
 postRouter.get("/", async (req, res, next) => {
   try {
     const posts = await PostSchema.find().populate({
       path: "user likes comments",
-    });
-    res.status(200).send(posts);
+    })
+    res.status(200).send(posts)
   } catch (error) {
-    next(error);
+    next(error)
   }
-});
+})
 postRouter.get("/:postId", async (req, res, next) => {
   try {
     const post = await PostSchema.findById(req.params.postId).populate({
-      path: "user likes Comments",
-    });
+      path: "user likes comments",
+    })
 
-    res.status(200).send(post);
+    res.status(200).send(post)
   } catch (error) {
-    next(error);
+    next(error)
   }
-});
+})
 postRouter.delete("/:postId", async (req, res, next) => {
   try {
-    const postDeleted = await PostSchema.findByIdAndDelete(req.params.postId);
-    res.status(200).send(postDeleted);
+    const postDeleted = await PostSchema.findByIdAndDelete(req.params.postId)
+    res.status(200).send(postDeleted)
   } catch (error) {
-    next(error);
+    next(error)
   }
-});
+})
 
 postRouter.put("/:postId", async (req, res, next) => {
   try {
@@ -61,32 +61,32 @@ postRouter.put("/:postId", async (req, res, next) => {
       req.params.postId,
       req.body,
       { new: true }
-    );
-    res.status(200).send(postsUpdated);
+    )
+    res.status(200).send(postsUpdated)
   } catch (error) {
-    next(error);
+    next(error)
   }
-});
+})
 
 // upload image
 
 postRouter.post("/:postId", cloudinaryUploader, async (req, res, next) => {
   try {
-    const postId = req.params.postId;
+    const postId = req.params.postId
     const updatedPost = await PostSchema.findByIdAndUpdate(
       postId,
       { image: req.file.path },
       {
         new: true,
       }
-    );
-    console.log("file path:", req.file);
+    )
+    console.log("file path:", req.file)
 
-    res.send(updatedPost);
+    res.send(updatedPost)
   } catch (error) {
-    next(error);
+    next(error)
   }
-});
+})
 
 postRouter.put("/:postId/like", async (req, res, next) => {
   // try {
@@ -104,41 +104,39 @@ postRouter.put("/:postId/like", async (req, res, next) => {
   //   res.send(500).send({ message: error.message });
   //}
   try {
-    const postId = req.params.postId;
-    const reqPost = await PostSchema.findById(postId);
-    console.log(req.body);
+    const postId = req.params.postId
+    const reqPost = await PostSchema.findById(postId)
+    console.log(req.body)
     if (reqPost) {
       const isAlreadyLiked = reqPost.likes.find(
         (_id) => _id.toString() === req.body.user
-      );
-      console.log(isAlreadyLiked);
+      )
+      console.log(isAlreadyLiked)
       if (!isAlreadyLiked) {
         const updatedPost = await PostSchema.findByIdAndUpdate(
           postId,
           { $push: { likes: req.body.user } },
           { new: true }
-        );
-        console.log(updatedPost);
-        console.log("like");
+        )
+        console.log(updatedPost)
+        console.log("like")
 
-        res.status(201).send(updatedPost);
+        res.status(201).send(updatedPost)
       } else {
         const updatedPost = await PostSchema.findByIdAndUpdate(
           postId,
           { $pull: { likes: req.body.user } },
           { new: true }
-        );
-        console.log("ünlike");
-        res.status(201).send(updatedPost);
+        )
+        console.log("ünlike")
+        res.status(201).send(updatedPost)
       }
     } else {
-      next(
-        createHttpError(404, `POST  WITH ID:- ${postId} CANNOT UPDATED  !!`)
-      );
+      next(createHttpError(404, `POST  WITH ID:- ${postId} CANNOT UPDATED  !!`))
     }
   } catch (error) {
-    next(error);
+    next(error)
   }
-});
+})
 
-export default postRouter;
+export default postRouter
