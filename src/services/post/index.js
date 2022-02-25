@@ -28,7 +28,7 @@ postRouter.post("/", async (req, res, next) => {
 postRouter.get("/", async (req, res, next) => {
   try {
     const posts = await PostSchema.find().populate({
-      path: "user likes",
+      path: "user likes comments",
     });
     res.status(200).send(posts);
   } catch (error) {
@@ -38,7 +38,7 @@ postRouter.get("/", async (req, res, next) => {
 postRouter.get("/:postId", async (req, res, next) => {
   try {
     const post = await PostSchema.findById(req.params.postId).populate({
-      path: "user",
+      path: "user likes Comments",
     });
 
     res.status(200).send(post);

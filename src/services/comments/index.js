@@ -18,8 +18,8 @@ commentRouter.get("/:postId/comments", async (req, res, next) => {
   try {
     const comments = await PostModel.find(
       { _id: req.params.postId },
-      "comments"
-    );
+      "Comments"
+    ).populate({ path: "user" });
     res.status(200).send(comments);
   } catch (error) {
     next(error);
@@ -50,18 +50,18 @@ commentRouter.post("/:postId/comments", async (req, res, next) => {
     next(error);
   }
 });
-commentRouter.get("/:postId/comments/", async (req, res, next) => {
-  try {
-    const comments = await PostModel.find({
-      _id: req.params.postId,
-    });
-    console.log(comments[0].comments);
-    // const postDeleted = await PostModel.findOneAndDelete({});
-    res.status(200).send(comments);
-  } catch (error) {
-    next(error);
-  }
-});
+// commentRouter.get("/:postId/comments/", async (req, res, next) => {
+//   try {
+//     const comments = await PostModel.find({
+//       _id: req.params.postId,
+//     }).populate({path: "user"});
+//     console.log(comments[0].comments);
+//     // const postDeleted = await PostModel.findOneAndDelete({});
+//     res.status(200).send(comments);
+//   } catch (error) {
+//     next(error);
+//   }
+// });
 commentRouter.delete("/:postId/comments/:commentId", async (req, res, next) => {
   try {
     const arrayComments = await PostModel.findOneAndUpdate(

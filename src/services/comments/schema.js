@@ -14,16 +14,15 @@ const CommentsSchema = new Schema(
   }
 );
 
-// ProductSchema.static("findPoductWithReviews", async function (mongoQuery) {
-//     const total = await this.countDocuments(mongoQuery.criteria)
-//     const products = await this.find(mongoQuery.criteria)
-//       .limit(mongoQuery.options.limit)
-//       .skip(mongoQuery.options.skip)
-//       .sort(mongoQuery.options.sort)
-//       .populate({
-//         path: "reviews",
-//         select: "comment rate",
-//       })
-//     return { total, products }
-//   })
+CommentsSchema.static("findCommentsWithUsers", async function (mongoQuery) {
+  const total = await this.countDocuments(mongoQuery.criteria);
+  const users = await this.find(mongoQuery.criteria)
+    .limit(mongoQuery.options.limit)
+    .skip(mongoQuery.options.skip)
+    .sort(mongoQuery.options.sort)
+    .populate({
+      path: "profiles",
+    });
+  return { total, users };
+});
 export default model("Comments ", CommentsSchema);

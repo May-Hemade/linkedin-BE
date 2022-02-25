@@ -25,9 +25,20 @@ postSchema.static("findPostsWithUsers", async function (mongoQuery) {
     .skip(mongoQuery.options.skip)
     .sort(mongoQuery.options.sort)
     .populate({
-      path: "profiles",
+      path: "profiles Comments",
     });
   return { total, users };
+});
+postSchema.static("findPostsWithComments", async function (mongoQuery) {
+  const total = await this.countDocuments(mongoQuery.criteria);
+  const comments = await this.find(mongoQuery.criteria)
+    .limit(mongoQuery.options.limit)
+    .skip(mongoQuery.options.skip)
+    .sort(mongoQuery.options.sort)
+    .populate({
+      path: "comments",
+    });
+  return { total, comments };
 });
 
 export default model("Post", postSchema);
