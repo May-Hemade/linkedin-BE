@@ -23,7 +23,7 @@ authRouter.post("/register", async (req, res, next) => {
     const newProfile = new profilesModel(req.body)
     const { _id } = await newProfile.save()
 
-    const token = jwt.sign({ user_id: _id, email }, process.env.TOKEN_KEY, {
+    const token = jwt.sign({ user_id: _id, username }, process.env.TOKEN_KEY, {
       expiresIn: "30d",
     })
 
@@ -48,7 +48,7 @@ authRouter.post("/login", async (req, res, next) => {
     if (profile) {
       const email = profile.email
       const token = jwt.sign(
-        { user_id: profile._id, email },
+        { user_id: profile._id, username },
         process.env.TOKEN_KEY,
         {
           expiresIn: "30d",
