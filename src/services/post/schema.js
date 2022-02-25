@@ -11,9 +11,9 @@ const postSchema = new Schema(
       default: "https://picsum.photos/200/300",
     },
     user: { type: Schema.Types.ObjectId, ref: "Profile" },
-    likes: [{ type: Schema.Types.ObjectId, ref: "Profile" }]
-      
-    
+    likes: [{ type: Schema.Types.ObjectId, ref: "Profile" }],
+
+    comments: [{ type: Schema.Types.ObjectId, ref: "Comments" }],
   },
   { timestamps: true }
 );

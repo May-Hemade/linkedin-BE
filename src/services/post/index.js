@@ -27,8 +27,6 @@ postRouter.post("/", async (req, res, next) => {
 });
 postRouter.get("/", async (req, res, next) => {
   try {
-    const mongoQuery = q2m(req.query);
-
     const posts = await PostSchema.find().populate({
       path: "user likes",
     });
