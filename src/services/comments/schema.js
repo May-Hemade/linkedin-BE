@@ -1,7 +1,7 @@
-import mongoose from "mongoose";
-import mongooseToCsv from "mongoose-to-csv";
+import mongoose from "mongoose"
+import mongooseToCsv from "mongoose-to-csv"
 
-const { Schema, model } = mongoose;
+const { Schema, model } = mongoose
 
 const CommentsSchema = new Schema(
   {
@@ -12,17 +12,17 @@ const CommentsSchema = new Schema(
   {
     timestamps: true,
   }
-);
+)
 
 CommentsSchema.static("findCommentsWithUsers", async function (mongoQuery) {
-  const total = await this.countDocuments(mongoQuery.criteria);
+  const total = await this.countDocuments(mongoQuery.criteria)
   const users = await this.find(mongoQuery.criteria)
     .limit(mongoQuery.options.limit)
     .skip(mongoQuery.options.skip)
     .sort(mongoQuery.options.sort)
     .populate({
       path: "profiles",
-    });
-  return { total, users };
-});
-export default model("Comments ", CommentsSchema);
+    })
+  return { total, users }
+})
+export default model("Comments", CommentsSchema)
